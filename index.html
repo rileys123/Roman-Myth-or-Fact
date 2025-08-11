@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roman Myth or Fact</title>
+    <!-- Tailwind CSS CDN for a cool, modern look -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Cormorant+Garamond:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Merriweather', serif;
+            background: #FDF5E6; /* Cream background */
+            color: #5d4037; /* Dark brown text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            transition: background-color 0.5s ease;
+        }
+
+        .container {
+            max-width: 90%;
+            width: 500px;
+            background: #FFFAED; /* Lighter cream for the card */
+            border-radius: 1.5rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 2.5rem;
+            text-align: center;
+        }
+        
+        h1 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem; /* Made bigger */
+            font-weight: 600;
+            color: #800080; /* Royal purple */
+            margin-bottom: 2rem;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+            animation: glow 1.5s ease-in-out infinite alternate; /* Added a glowing animation */
+        }
+
+        /* Keyframes for the new title animation */
+        @keyframes glow {
+            from {
+                text-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700, 0 0 15px #ffeb8c;
+            }
+            to {
+                text-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ffeb8c;
+            }
+        }
+
+        .question-box {
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .question-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease-in-out;
+            color: #5d4037;
+        }
+
+        .button {
+            transition: all 0.2s ease-in-out;
+            transform: scale(1);
+            background-color: #FFD700; /* Gold */
+            color: #5d4037;
+            font-weight: 700;
+            border: 2px solid #800080; /* Purple border */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .button:hover {
+            transform: scale(1.05);
+            background-color: #e6c200; /* Darker gold */
+        }
+        
+        .button:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .button.correct {
+            background-color: #9acd32; /* A subtle green-gold */
+            border-color: #2f855a;
+            color: white;
+        }
+        
+        .button.incorrect {
+            background-color: #e57373; /* A muted red */
+            border-color: #c62828;
+            color: white;
+        }
+
+        .answer-feedback {
+            margin-top: 1.5rem;
+            padding: 1.25rem;
+            border-radius: 0.75rem;
+            color: #5d4037;
+            font-weight: 600;
+            animation: fadeIn 0.5s ease-in-out;
+            border: 1px solid #c8a2c8; /* Light purple border */
+            background-color: #fff0f5; /* Very light pink/cream */
+        }
+        
+        .correct-answer-text {
+            font-weight: 400;
+            margin-top: 0.5rem;
+        }
+
+        .score-container {
+            margin-top: 2rem;
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #800080; /* Purple */
+            animation: fadeIn 0.5s ease-in-out;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            background-color: #fffcf2;
+            border: 1px dashed #c8a2c8;
+        }
+        
+        .restart-button {
+            background-color: #FFD700; /* Gold */
+            color: #5d4037;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            padding: 0.75rem 2rem;
+            margin-top: 1.5rem;
+            border-radius: 9999px; /* Full rounded corners */
+            transition: all 0.2s ease-in-out;
+            transform: scale(1);
+        }
+        
+        .restart-button:hover {
+            background-color: #e6c200;
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="quiz-container" class="container">
+        <h1 id="quiz-title">Roman Myth or Fact?</h1>
+        <div id="question-box" class="question-box">
+            <!-- Question will be injected here by JavaScript -->
+            <p id="question-text" class="text-center"></p>
+            <div id="button-container" class="flex flex-col sm:flex-row gap-4 mt-6">
+                <button id="myth-button" class="button py-3 px-8 rounded-full shadow-lg">Myth</button>
+                <button id="fact-button" class="button py-3 px-8 rounded-full shadow-lg">Fact</button>
+            </div>
+        </div>
+
+        <div id="feedback-box" class="hidden">
+            <!-- Feedback and explanation will be injected here -->
+        </div>
+
+        <div id="next-button-container" class="mt-8 hidden">
+            <button id="next-button" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-2 px-6 rounded-full shadow-md transition-all">Next</button>
+        </div>
+
+        <div id="end-screen" class="hidden">
+            <div id="score-display" class="score-container"></div>
+            <button id="restart-button" class="restart-button">Restart Quiz</button>
+        </div>
+    </div>
+
+    <script>
+        // Array of quiz questions and answers
+        const quizData = [
+            {
+                question: "The Romans only spoke Latin throughout the empire.",
+                isFact: false, // This is a myth
+                explanation: "While Latin was the 'official' language, Greek was widely spoken in the eastern provinces along with many local languages."
+            },
+            {
+                question: "Roman gladiators were mostly slaves who fought to death every match.",
+                isFact: false, // This is a myth
+                explanation: "Many gladiators were slaves, but some were free volunteers; not all fights ended in death since gladiators were expensive to train."
+            },
+            {
+                question: 'Julius Caesar actually said "Veni, vidi, vici".',
+                isFact: true, // This is a fact
+                explanation: 'He used this phrase in a letter to the Senate after his victory at the Battle of Zela in 47 BCE.'
+            },
+            {
+                question: "Romans ate lying down on couches at formal dinner parties.",
+                isFact: true, // This is a fact
+                explanation: "Wealthy Romans reclined on 'triclinia' (couches) during banquets."
+            },
+            {
+                question: "Purple clothes were worn by anyone who could afford the luxury.",
+                isFact: false, // This is a myth
+                explanation: "Purple, especially Tyrian purple, was regulated by laws and reserved for emperors and high-ranking officials."
+            },
+            {
+                question: 'The Latin "et tu, Brute?" is recorded in the historical assassination of Caesar.',
+                isFact: false, // This is a myth
+                explanation: "This famous phrase is from Shakespeare's play, not historical accounts."
+            },
+            {
+                question: "Roman soldiers were paid in salt, which is where the word 'salary' comes from.",
+                isFact: false, // This is a myth
+                explanation: "Roman soldiers were paid in coins; the word 'salary' comes from 'salarium' most likely referring to money used to buy salt."
+            },
+            {
+                question: "Romans brushed their teeth with urine because they thought it had whitening properties.",
+                isFact: true, // This is a fact
+                explanation: "Romans did indeed use urine as mouthwash and a tooth whitener."
+            },
+            {
+                question: "Classical Latin had no letter 'J'.",
+                isFact: true, // This is a fact
+                explanation: "It was written and pronounced as the letter 'I', so 'Julius' would be 'Iulius'."
+            },
+            {
+                question: "The Romans invented concrete which was stronger than modern concrete.",
+                isFact: true, // This is a fact
+                explanation: "They invented concrete around the 3rd century BCE, with their concrete being very durable due to being made from sea water."
+            }
+        ];
+
+        // Get all the necessary DOM elements
+        const questionText = document.getElementById('question-text');
+        const mythButton = document.getElementById('myth-button');
+        const factButton = document.getElementById('fact-button');
+        const feedbackBox = document.getElementById('feedback-box');
+        const nextButtonContainer = document.getElementById('next-button-container');
+        const nextButton = document.getElementById('next-button');
+        const endScreen = document.getElementById('end-screen');
+        const scoreDisplay = document.getElementById('score-display');
+        const restartButton = document.getElementById('restart-button');
+        const buttonContainer = document.getElementById('button-container');
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+
+        // Function to shuffle the quiz questions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+        
+        // Start or restart the quiz
+        function startQuiz() {
+            shuffleArray(quizData);
+            currentQuestionIndex = 0;
+            score = 0;
+            endScreen.classList.add('hidden');
+            nextButtonContainer.classList.add('hidden');
+            loadQuestion();
+        }
+
+        // Function to load a new question
+        function loadQuestion() {
+            if (currentQuestionIndex < quizData.length) {
+                const currentQuestion = quizData[currentQuestionIndex];
+                questionText.textContent = currentQuestion.question;
+                
+                // Reset UI for new question
+                buttonContainer.classList.remove('hidden');
+                mythButton.classList.remove('correct', 'incorrect');
+                factButton.classList.remove('correct', 'incorrect');
+                mythButton.disabled = false;
+                factButton.disabled = false;
+                feedbackBox.classList.add('hidden');
+                nextButtonContainer.classList.add('hidden');
+            } else {
+                showEndScreen();
+            }
+        }
+
+        // Function to handle the user's answer
+        function handleAnswer(isUserFact) {
+            const currentQuestion = quizData[currentQuestionIndex];
+            const isCorrect = (isUserFact === currentQuestion.isFact);
+
+            if (isCorrect) {
+                score++;
+                feedbackBox.innerHTML = '<p class="correct-feedback answer-feedback">Correct!</p>';
+            } else {
+                feedbackBox.innerHTML = '<p class="incorrect-feedback answer-feedback">Incorrect!</p>';
+            }
+            
+            // Add the explanation to the feedback
+            feedbackBox.innerHTML += `<p class="correct-answer-text">${currentQuestion.explanation}</p>`;
+            feedbackBox.classList.remove('hidden');
+
+            // Visually indicate correct/incorrect buttons
+            if (currentQuestion.isFact) {
+                factButton.classList.add('correct');
+                mythButton.classList.add('incorrect');
+            } else {
+                mythButton.classList.add('correct');
+                factButton.classList.add('incorrect');
+            }
+
+            // Disable buttons after selection
+            mythButton.disabled = true;
+            factButton.disabled = true;
+
+            nextButtonContainer.classList.remove('hidden');
+        }
+
+        // Function to show the final score screen
+        function showEndScreen() {
+            endScreen.classList.remove('hidden');
+            questionText.textContent = '';
+            buttonContainer.classList.add('hidden');
+            feedbackBox.classList.add('hidden');
+            scoreDisplay.textContent = `You scored ${score} out of ${quizData.length}!`;
+        }
+        
+        // Event listeners for the buttons
+        mythButton.addEventListener('click', () => handleAnswer(false));
+        factButton.addEventListener('click', () => handleAnswer(true));
+
+        nextButton.addEventListener('click', () => {
+            currentQuestionIndex++;
+            loadQuestion();
+        });
+
+        restartButton.addEventListener('click', startQuiz);
+
+        // Initial call to start the quiz
+        startQuiz();
+
+    </script>
+</body>
+</html>
